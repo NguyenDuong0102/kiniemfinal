@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tặng Quà 🎁</title>
+<style>
+  body {
+    background: linear-gradient(to bottom, #d8efff, #fff);
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Comic Sans MS', cursive;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #scene {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Text chạy vòng cung trên đầu */
+  #balloonText {
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 150px;
+    z-index: 1;
+    pointer-events: none;
+  }
+@font-face {
+  font-family: 'Balloons';
+  src: url('fonts/Balloons.ttf') format('truetype');
+}
+
+#balloonText span {
+  font-family: 'Balloons', cursive;
+  font-size: 360px;
+  position: absolute; left: 50%; font-size: 18px; 
+   font-weight: bold; color: #ff6b9d; text-shadow: 2px 2px 4px rgba(0,0,0,0.3), -1px -1px 2px 
+   rgba(255,255,255,0.8); transform-origin: 0 150px;
+}
+
+  #characterWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 360px;
+    height: 360px;
+  }
+
+  /* NPC */
+  #character {
+    width: 720px;
+    height:720px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .npcTalk {
+    content: url('img/npc_talk.png');
+  }
+
+  .npcGift {
+    content: url('img/boy.png');
+  }
+
+  /* Bong bóng thoại */
+  #chatBox {
+    position: absolute;
+    left: -280px;
+    top: 50%;
+    transform: translateY(-50%) scale(0.8);
+    background: white;
+    border: 3px solid black;
+    border-radius: 20px;
+    padding: 16px 20px;
+    font-size: 20px;
+    max-width: 280px;
+    text-align: center;
+    box-shadow: 5px 5px 0 black;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 5;
+  }
+
+  #chatBox.show {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+
+  #chatBox::after {
+    content: "";
+    position: absolute;
+    right: -20px;
+    bottom: 30px;
+    border-left: 20px solid black;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+  }
+@media screen and (max-width: 768px) {
+  #chatBox {
+    left: 50%;
+    top: 5%; /* cách trên 5% */
+    bottom: auto;
+    transform: translateX(-50%) scale(1);
+    max-width: 90%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 16px;
+  }}
+  #chatInput {
+    margin-top: 8px;
+    width: 90%;
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid #999;
+    font-size: 16px;
+  }
+
+  #chatBtn {
+    margin-top: 6px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+
+  /* Hộp quà */
+  #gift {
+    position: absolute;
+    width: 260px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: transform 0.4s ease;
+    z-index: 2;
+    display: none;
+  }
+
+  /* Hiệu ứng ảnh quà zoom */
+  #result {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    z-index: 10;
+  }
+
+  #result.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .result-media {
+    width: 0;
+    border-radius: 10px;
+    transition: width 1s ease, transform 1s ease;
+  }
+
+  .result-media.zoom {
+    width: 50vw;
+    transform: scale(1.05);
+  }
+
+  #closeBtn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 26px;
+    color: white;
+    cursor: pointer;
+  }
+  body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover; /* giúp ảnh vừa khung */
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 1s ease-in-out; /* hiệu ứng mượt */
+  z-index: -1; /* nằm sau tất cả */
+}
+
+</style>
+
+</head>
+
+<body>
+<div id="bg"></div>
+<div id="scene">
+  <div id="characterWrapper">
+    <div id="balloonText"></div>
+    
+    <div id="chatBox" class="show">
+      <p>Có phải cậu là...</p>
+      <input type="text" id="chatInput" placeholder="Tên của cậu...">
+      <button id="chatBtn">OK</button>
+    </div>
+
+    <img id="character" class="npcTalk" alt="Nhân vật">
+    <img id="gift" src="img/giftbox.png" alt="Hộp quà">
+  </div>
+</div>
+
+<!-- Ảnh quà -->
+<div id="result">
+  <span id="closeBtn">✖</span>
+</div>
+
+<script>
+let username = "";
+let opened = false;
+
+// Cập nhật ngày tháng theo múi giờ Việt Nam
+function updateBalloonDate() {
+  const balloon = document.getElementById("balloonText");
+  const now = new Date();
+  
+  // Chuyển sang múi giờ Việt Nam (UTC+7)
+  const options = {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  };
+  
+  const formatter = new Intl.DateTimeFormat('vi-VN', options);
+  const parts = formatter.formatToParts(now);
+  
+  const day = parts.find(p => p.type === 'day').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const year = parts.find(p => p.type === 'year').value;
+  
+  const text = `Chuc Mung ${day}/${month}/${year} nhaaaa`;
+  
+  // Tạo text chạy vòng cung
+  balloon.innerHTML = '';
+  const chars = text.split('');
+  const totalChars = chars.length;
+  const angleStep = 180 / (totalChars - 1); // Phân bố đều trên 180 độ
+  
+  chars.forEach((char, i) => {
+    const span = document.createElement('span');
+    span.textContent = char;
+    const angle = -90 + (i * angleStep); // Từ -90° đến +90°
+    span.style.transform = `rotate(${angle}deg)`;
+    balloon.appendChild(span);
+  });
+}
+
+// Gọi hàm khi tải trang
+updateBalloonDate();
+
+// Cập nhật mỗi phút
+setInterval(updateBalloonDate, 60000);
+
+document.getElementById("chatBtn").addEventListener("click", () => {
+  const input = document.getElementById("chatInput");
+  username = input.value.trim();
+  if (!username) return alert("Nhập tên đi mà 😆");
+
+  const chat = document.getElementById("chatBox");
+  const gift = document.getElementById("gift");
+  const npc = document.getElementById("character");
+
+  // NPC phản ứng sau khi nhập tên
+  chat.innerHTML = `<p>À ra là <b>${username}</b> à 😯<br>Cậu thay đổi quá đó...</p>`;
+  npc.classList.remove("npcTalk");
+  npc.classList.add("npcGift");
+
+  // Sau 2.5s NPC nói tiếp
+  setTimeout(() => {
+    chat.innerHTML = `<p>Tớ có món quà tặng cậu 🎁</p>`;
+    gift.style.display = "block";
+  }, 2500);
+});
+
+document.getElementById("gift").addEventListener("click", openGift);
+document.body.addEventListener("keydown", e => {
+  if (e.code === "Space") openGift();
+});
+
+function openGift() {
+  if (opened) return;
+  opened = true;
+
+  const result = document.getElementById("result");
+  // Tạo div full screen chứa ảnh
+  const isMobile = window.innerWidth <= 768;
+  const bgFile = isMobile ? "img/bg_er1.jpg" : "img/bg_er2.jpg";
+
+  const fullScreenDiv = document.createElement("div");
+  fullScreenDiv.style.width = "100%";
+  fullScreenDiv.style.height = "100%";
+  fullScreenDiv.style.backgroundImage = `url(${bgFile})`;
+  fullScreenDiv.style.backgroundSize = "cover";
+  fullScreenDiv.style.backgroundPosition = "center";
+  fullScreenDiv.style.cursor = "pointer";
+  document.body.appendChild(fullScreenDiv);
+
+  // fullscreen trực tiếp từ click người dùng
+  if (fullScreenDiv.requestFullscreen) fullScreenDiv.requestFullscreen();
+  else if (fullScreenDiv.webkitRequestFullscreen) fullScreenDiv.webkitRequestFullscreen();
+  else if (fullScreenDiv.msRequestFullscreen) fullScreenDiv.msRequestFullscreen();
+
+  // Ẩn các phần cũ
+  document.getElementById("scene").style.display = "none";
+  document.getElementById("bg").style.display = "none";
+  result.style.display = "none";
+
+  // Nhạc
+  const audio = new Audio("c.mp3");
+  audio.load();
+  let playCount = 0;
+  const maxPlays = 3;
+
+  audio.addEventListener("ended", () => {
+    playCount++;
+    if (playCount < maxPlays) {
+      audio.currentTime = 0;
+      audio.play();
+    }
+  });
+
+  audio.play();
+
+  // Click div để thoát fullscreen
+  fullScreenDiv.addEventListener("click", () => {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  });
+}
+
+document.getElementById("closeBtn").addEventListener("click", () => {
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("giftImage").classList.remove("zoom");
+});
+
+// danh sách các ảnh nền
+const backgrounds = [
+  "img/bg_1.jpg",
+  "img/bg_2.jpg",
+  "img/bg_3.jpg",
+];
+
+// khởi tạo ảnh đầu tiên ngẫu nhiên
+let currentIndex = Math.floor(Math.random() * backgrounds.length);
+bg.style.backgroundImage = `url(${backgrounds[currentIndex]})`;
+
+// đổi ảnh mỗi 5 giây
+setInterval(() => {
+  currentIndex = (currentIndex + 1) % backgrounds.length;
+  bg.style.backgroundImage = `url(${backgrounds[currentIndex]})`;
+}, 5000);
+
+
+</script>
+
+</body>
+</html>
